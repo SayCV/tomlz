@@ -27,13 +27,22 @@ pub fn main() !void {
     };
     defer table.deinit(gpa);
 
+    var actual_al = std.ArrayList(u8).init(gpa);
+    defer actual_al.deinit();
+
+    var json_writer = std.json.writeStreamArbitraryDepth(
+        gpa,
+        actual_al.writer(),
+        .{ .whitespace = .indent_4 },
+    );
+    defer json_writer.deinit();
+
+    var arena = std.heap.ArenaAllocator.init(gpa);
+    defer arena.deinit();
+
     const integration = @import("integration_tests.zig");
-    var json = try integration.tableToJson(gpa, &table);
+    var actual_json = try integration.tableToJson(arena.allocator(), &table);
+    try actual_json.jsonStringify(&json_writer);
 
-    var al = std.ArrayList(u8).init(gpa);
-    defer al.deinit();
-    var jws = std.json.writeStream(al.writer(), .{});
-
-    try json.jsonStringify(&jws);
-    std.debug.print("{s}", .{al.items});
+    std.debug.print("{s}", .{actual_al.items});
 }
