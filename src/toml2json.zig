@@ -13,10 +13,10 @@ pub fn main() !void {
     var f = try std.fs.openFileAbsoluteZ(std.os.argv[1], .{});
     defer f.close();
 
-    var contents = try f.reader().readAllAlloc(gpa, 5 * 1024 * 1024);
+    const contents = try f.reader().readAllAlloc(gpa, 5 * 1024 * 1024);
     defer gpa.free(contents);
 
-    var lexer = parser.Lexer{ .real = try lex.Lexer.init(gpa, contents) };
+    const lexer = parser.Lexer{ .real = try lex.Lexer.init(gpa, contents) };
     var p = try parser.Parser.init(gpa, lexer);
     defer p.deinit();
 
@@ -32,7 +32,8 @@ pub fn main() !void {
 
     var al = std.ArrayList(u8).init(gpa);
     defer al.deinit();
+    var jws = std.json.writeStream(al.writer(), .{});
 
-    try json.jsonStringify(.{ .whitespace = .{} }, al.writer());
+    try json.jsonStringify(&jws);
     std.debug.print("{s}", .{al.items});
 }
