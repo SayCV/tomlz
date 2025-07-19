@@ -10,6 +10,9 @@ pub const Value = parser.Value;
 pub const Array = parser.Array;
 pub const Table = parser.Table;
 
+const integration = @import("integration_tests.zig");
+pub const tableToJson = integration.tableToJson;
+
 /// Serialize a value to the given out_stream.
 ///
 /// Use this when you want to write a struct as the root table. When serializing
