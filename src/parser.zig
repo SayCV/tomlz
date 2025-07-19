@@ -728,8 +728,8 @@ pub const Parser = struct {
 
         val.* = try self.parseValue();
         if (val.* == .array and val.*.array.array.items.len == 0) {
-            self.diag = .{ .msg = "inline arrays cannot be empty", .loc = loc };
-            return error.UnexpectedToken;
+            //self.diag = .{ .msg = "inline arrays cannot be empty", .loc = loc };
+            //return error.UnexpectedToken;
         }
 
         const next = self.peek(false) catch |err| switch (err) {
