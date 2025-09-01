@@ -441,7 +441,7 @@ pub const Parser = struct {
         const dup: []const u8 = try self.allocator.dupe(u8, key);
         {
             errdefer self.allocator.free(dup);
-            try al.append(dup);
+            try al.append(self.allocator, dup);
         }
 
         var prev_loc = loc;
@@ -479,7 +479,7 @@ pub const Parser = struct {
             const new_dup = try self.allocator.dupe(u8, key_s);
             {
                 errdefer self.allocator.free(new_dup);
-                try al.append(new_dup);
+                try al.append(self.allocator, new_dup);
             }
         }
     }
@@ -703,10 +703,10 @@ pub const Parser = struct {
 
     /// parseAssignment parses a key/value assignment to `key`, followed by either a newline or EOF
     fn parseAssignment(self: *Parser, loc: lex.Loc, key: []const u8) !void {
-        var al = std.ArrayList([]const u8).init(self.allocator);
+        var al: std.ArrayList([]const u8) = .empty;
         defer {
             for (al.items) |s| self.allocator.free(s);
-            al.deinit();
+            al.deinit(self.allocator);
         }
 
         const new_loc = try self.parseKey(key, loc, &al);
@@ -772,10 +772,10 @@ pub const Parser = struct {
             },
         };
 
-        var al = std.ArrayList([]const u8).init(self.allocator);
+        var al: std.ArrayList([]const u8) = .empty;
         defer {
             for (al.items) |s| self.allocator.free(s);
-            al.deinit();
+            al.deinit(self.allocator);
         }
 
         const new_loc = try self.parseKey(key, tokloc.loc, &al);
@@ -797,10 +797,10 @@ pub const Parser = struct {
         table: *Table,
         key: []const u8,
     } {
-        var al = std.ArrayList([]const u8).init(self.allocator);
+        var al: std.ArrayList([]const u8) = .empty;
         defer {
             for (al.items) |s| self.allocator.free(s);
-            al.deinit();
+            al.deinit(self.allocator);
         }
 
         const new_loc = try self.parseKey(key, loc, &al);
