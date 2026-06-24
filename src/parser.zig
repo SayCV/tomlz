@@ -78,7 +78,7 @@ pub const Lexer = union(enum) {
 /// Table represents a TOML table (i.e. dicitonary/hashmap). It assumes that the key and value were allocated with the
 /// same allocator
 pub const Table = struct {
-    table: TableBase = .{},
+    table: TableBase = .empty,
     source: Source,
     /// Whether or not we can assign to values inside of this table.
     ///
@@ -191,7 +191,7 @@ pub const Table = struct {
 };
 
 pub const Array = struct {
-    array: Base = .{},
+    array: Base = .empty,
     source: Source,
 
     const Base = std.ArrayListUnmanaged(Value);
@@ -513,7 +513,7 @@ pub const Parser = struct {
 
     /// parseInlineArray parses a value of the form "[ <value-1>, <value-2>, ...]"
     fn parseInlineArray(self: *Parser) !Value {
-        var al = std.ArrayListUnmanaged(Value){};
+        var al = std.ArrayListUnmanaged(Value).empty;
         errdefer {
             for (al.items) |*item| {
                 item.deinit(self.allocator);

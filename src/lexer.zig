@@ -188,7 +188,7 @@ pub const Lexer = struct {
 
     fn parseMultiline(self: *Lexer, typ: Quotation) Error!TokLoc {
         const loc = self.loc;
-        var al = std.ArrayListUnmanaged(u8){};
+        var al = std.ArrayListUnmanaged(u8).empty;
         var first = true;
         while (true) {
             const c = self.pop() catch |err| switch (err) {
@@ -310,7 +310,7 @@ pub const Lexer = struct {
         }
 
         const loc = self.loc;
-        var al = std.ArrayListUnmanaged(u8){};
+        var al = std.ArrayListUnmanaged(u8).empty;
         while (true) {
             const c = self.pop() catch |err| switch (err) {
                 error.EOF => return error.StringNotEnded,
@@ -347,7 +347,7 @@ pub const Lexer = struct {
     /// parseKey parses a key. A key can only contain [A-Za-z0-9-_]
     fn parseKey(self: *Lexer) Error!TokLoc {
         const loc = self.loc;
-        var al = std.ArrayListUnmanaged(u8){};
+        var al = std.ArrayListUnmanaged(u8).empty;
         while (true) {
             const c = self.peek() catch |err| {
                 switch (err) {
@@ -744,8 +744,8 @@ test "quotation works" {
 
     try testTokens(
         \\"foo \"bar\" baz"
-    , &.{.{ .string = 
-    \\foo "bar" baz
+    , &.{.{ .string =
+        \\foo "bar" baz
     }});
 
     try testTokens("\"foo \\n bar\"", &.{.{ .string = "foo \n bar" }});
