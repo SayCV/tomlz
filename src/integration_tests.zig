@@ -129,13 +129,13 @@ pub fn tomlValueToJson(allocator: std.mem.Allocator, v: *parser.Value) !std.json
 }
 
 pub fn tableToJson(allocator: std.mem.Allocator, table: *parser.Table) error{OutOfMemory}!std.json.Value {
-    var obj = std.json.ObjectMap.init(allocator);
-    errdefer obj.deinit();
+    var obj = try std.json.ObjectMap.init(allocator, &.{}, &.{});
+    errdefer obj.deinit(allocator);
 
     var it = table.table.iterator();
     while (it.next()) |entry| {
         const v = try tomlValueToJson(allocator, entry.value_ptr);
-        try obj.put(entry.key_ptr.*, v);
+        try obj.put(allocator, entry.key_ptr.*, v);
     }
 
     return std.json.Value{ .object = obj };
@@ -146,7 +146,7 @@ fn expectParseEqualToJson(src: []const u8, json: []const u8) !void {
     defer table.deinit(testing.allocator);
 
     var actual_al = std.ArrayList(u8).init(testing.allocator);
-    defer actual_al.deinit();
+    defer actual_al.deinit(testing.allocator);
 
     var json_writer = std.json.writeStreamArbitraryDepth(
         testing.allocator,
@@ -156,7 +156,7 @@ fn expectParseEqualToJson(src: []const u8, json: []const u8) !void {
     defer json_writer.deinit();
 
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
+    defer arena.deinit(testing.allocator);
 
     var actual_json = try tableToJson(arena.allocator(), &table);
     try actual_json.jsonStringify(&json_writer);

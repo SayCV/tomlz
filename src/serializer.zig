@@ -203,7 +203,7 @@ pub fn WriteStream(
                 .out_stream = out_stream,
                 .key_stack = switch (max_depth) {
                     .arbitrary => std.ArrayList([]const u8).init(key_allocator),
-                    .fixed => |depth| [_]?[]const u8{null} ** depth,
+                    .fixed => |depth| [_]?[]const u8{null} * *depth,
                 },
             };
         }
@@ -903,7 +903,7 @@ test "test write stream fixed depth" {
 
 test "encoding works at comptime" {
     comptime {
-        var alloc_buffer = [_]u8{0} ** 32;
+        var alloc_buffer = [_]u8{0} * *32;
         var fba = std.heap.FixedBufferAllocator.init(&alloc_buffer);
         const alloc = fba.allocator();
 
